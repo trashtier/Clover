@@ -31,7 +31,6 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
 import org.trashtier.chan.Chan;
-import org.trashtier.chan.ChanApplication;
 import org.trashtier.chan.core.database.DatabaseManager;
 import org.trashtier.chan.core.model.Post;
 import org.trashtier.chan.core.model.PostLinkable;
@@ -404,7 +403,7 @@ public class ChanParser {
                     key += " (OP)";
                 }
 
-                if(ChanApplication.getDatabaseManager().isSavedReply(post.board, postId)) {
+                if(databaseManager.isSavedReply(post.board, postId)) {
                     // (you)
                     key += " (You)";
                 }
