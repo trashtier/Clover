@@ -39,9 +39,15 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
@@ -51,12 +57,17 @@ import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.core.net.ByteArrayRequest;
+import org.jsoup.parser.Parser;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
@@ -129,7 +140,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final int position = viewHolder.getAdapterPosition();
                 final Board board = boards.get(position - 1);
-                board.saved = false;
+                //board.saved = false;
                 boards.remove(position - 1);
                 adapter.notifyItemRemoved(position);
 
@@ -138,7 +149,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
                 snackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        board.saved = true;
+                        //board.saved = true;
                         boards.add(position - 1, board);
                         adapter.notifyDataSetChanged();
                     }
@@ -226,6 +237,8 @@ public class BoardEditController extends Controller implements View.OnClickListe
         value = value.replace("/", "");
         value = value.replace("\\", "");
 
+        final String code = value;
+
         // Duplicate
         for (Board board : boards) {
             if (board.value.equals(value)) {
@@ -236,6 +249,8 @@ public class BoardEditController extends Controller implements View.OnClickListe
         }
 
         // Normal add
+
+        /*
         List<Board> all = Chan.getBoardManager().getAllBoards();
         for (Board board : all) {
             if (board.value.equals(value)) {
@@ -251,14 +266,64 @@ public class BoardEditController extends Controller implements View.OnClickListe
 
                 return;
             }
-        }
+        }*/
+
+        // this was shamelessly stolen from exodus
+        // todo: rewrite this in a less hacky way
+        ChanApplication.getVolleyRequestQueue().add(new ByteArrayRequest(
+                ChanUrls.getBoardUrlDesktop(code),
+                new Response.Listener<byte[]>() {
+                    @Override
+                    public void onResponse(byte[] response) {
+                        Pattern titlePattern = Pattern.compile("<title>(.*?)</title>");
+                        String responseString;
+                        try {
+                            responseString = new String(response, "UTF-8");
+                        } catch (UnsupportedEncodingException ex) {
+                            responseString = new String();
+                        }
+                        Matcher matcher = titlePattern.matcher(responseString);
+                        if(!matcher.find()) {
+                            Snackbar s = Snackbar.make(view, getString(R.string.board_add_unknown_title), Toast.LENGTH_LONG);
+                            fixSnackbarText(context, s);
+                            s.show();
+                            return;
+                        }
+                        String[] components = matcher.group(1).split(" - ", 2);
+                        if (components.length < 2) {
+                            Snackbar s = Snackbar.make(view, getString(R.string.board_add_unknown_title), Toast.LENGTH_LONG);
+                            fixSnackbarText(context, s);
+                            s.show();
+                            return;
+                        }
+                        Board b = new Board(Parser.unescapeEntities(components[1], false), code, true);
+                        boards.add(b);
+                        ChanApplication.getBoardManager().saveBoard(b);
+                        adapter.notifyDataSetChanged();
+
+                        Snackbar s = Snackbar.make(view, getString(R.string.board_add_success), Snackbar.LENGTH_LONG);
+                        fixSnackbarText(context, s);
+                        s.show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Snackbar s = Snackbar.make(view, getString(R.string.board_add_unknown_title), Snackbar.LENGTH_LONG);
+                        fixSnackbarText(context, s);
+                        s.show();
+                    }
+                }
+        ));
 
         // Unknown
+        /*
         new AlertDialog.Builder(context)
                 .setTitle(R.string.board_add_unknown_title)
                 .setMessage(context.getString(R.string.board_add_unknown, value))
                 .setPositiveButton(R.string.ok, null)
                 .show();
+                */
     }
 
     private class FillAdapter extends ArrayAdapter<String> implements Filterable {

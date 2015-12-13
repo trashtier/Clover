@@ -27,15 +27,15 @@ public class ChanUrls {
     }
 
     public static String getCatalogUrl(String board) {
-        return scheme + "://a.4cdn.org/" + board + "/catalog.json";
+        return scheme + "://55chan.org/" + board + "/catalog.json";
     }
 
     public static String getPageUrl(String board, int pageNumber) {
-        return scheme + "://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
+        return scheme + "://55chan.org/" + board + "/" + pageNumber + ".json";
     }
 
     public static String getThreadUrl(String board, int no) {
-        return scheme + "://a.4cdn.org/" + board + "/thread/" + no + ".json";
+        return scheme + "://55chan.org/" + board + "/res/" + no + ".json";
     }
 
     public static String getCaptchaSiteKey() {
@@ -43,15 +43,15 @@ public class ChanUrls {
     }
 
     public static String getImageUrl(String board, String code, String extension) {
-        return scheme + "://i.4cdn.org/" + board + "/" + code + "." + extension;
+        return scheme + "://55chan.org/" + board + "/src/" + code + "." + extension;
     }
 
     public static String getThumbnailUrl(String board, String code) {
-        return scheme + "://t.4cdn.org/" + board + "/" + code + "s.jpg";
+        return scheme + "://55chan.org/" + board + "/thumb/" + code + "s.jpg";
     }
 
     public static String getSpoilerUrl() {
-        return scheme + "://s.4cdn.org/image/spoiler.png";
+        return scheme + "://55chan.org/static/spoiler.png";
     }
 
     public static String getCustomSpoilerUrl(String board, int value) {
@@ -59,35 +59,36 @@ public class ChanUrls {
     }
 
     public static String getCountryFlagUrl(String countryCode) {
-        return scheme + "://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
+        return scheme + "://55chan.org/static/flags/" + countryCode.toLowerCase(Locale.ENGLISH) + ".png";
     }
 
     public static String getBoardsUrl() {
-        return scheme + "://a.4cdn.org/boards.json";
+        return scheme + "://55chan.org/boards.json"; // not a thing in 55chan
     }
 
     public static String getReplyUrl(String board) {
-        return "https://sys.4chan.org/" + board + "/post";
+        return "https://55chan.org/altpost.php";
     }
 
     public static String getDeleteUrl(String board) {
-        return "https://sys.4chan.org/" + board + "/imgboard.php";
+        //return "https://sys.4chan.org/" + board + "/imgboard.php";]
+        return getReplyUrl(board);
     }
 
     public static String getBoardUrlDesktop(String board) {
-        return scheme + "://boards.4chan.org/" + board + "/";
+        return scheme + "://55chan.org/" + board + "/";
     }
 
     public static String getThreadUrlDesktop(String board, int no) {
-        return scheme + "://boards.4chan.org/" + board + "/thread/" + no;
+        return scheme + "://55chan.org/" + board + "/res/" + no + ".html";
     }
 
     public static String getThreadUrlDesktop(String board, int no, int postNo) {
-        return scheme + "://boards.4chan.org/" + board + "/thread/" + no + "#p" + postNo;
+        return scheme + "://55chan.org/" + board + "/res/" + no + ".html#" + postNo;
     }
 
     public static String getCatalogUrlDesktop(String board) {
-        return scheme + "://boards.4chan.org/" + board + "/catalog";
+        return scheme + "://55chan.org/" + board + "/catalog.html";
     }
 
     public static String getPassUrl() {
@@ -95,6 +96,8 @@ public class ChanUrls {
     }
 
     public static String getReportUrl(String board, int no) {
-        return "https://sys.4chan.org/" + board + "/imgboard.php?mode=report&no=" + no;
+        //return "https://sys.4chan.org/" + board + "/imgboard.php?mode=report&no=" + no;
+
+        return ""; // TODO: implement
     }
 }

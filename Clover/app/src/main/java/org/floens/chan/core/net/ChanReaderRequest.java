@@ -18,6 +18,7 @@
 package org.floens.chan.core.net;
 
 import android.util.JsonReader;
+import android.util.Log;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -161,6 +162,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
             }
         }
 
+        Log.d("ChanReaderRequest", "op.id is" + op.id);
+
+
         return response;
     }
 
@@ -250,9 +254,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 case "com":
                     post.rawComment = reader.nextString();
                     break;
-                case "tim":
-                    post.tim = reader.nextLong();
-                    break;
+                //case "tim":
+                    //post.tim = reader.nextString();
+                  //  break;
                 case "time":
                     post.time = reader.nextLong();
                     break;
@@ -346,7 +350,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         } else {
             // Process the filters before finish, because parsing the html is dependent on filter matches
             processPostFilter(post);
-            if (!post.finish()) {
+            boolean b = post.finish();
+            if (!b) {
                 Logger.e(TAG, "Incorrect data about post received for post " + post.no);
                 return null;
             } else {

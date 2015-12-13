@@ -49,7 +49,7 @@ public class BoardManager {
 
     public BoardManager() {
         loadBoards();
-        loadFromServer();
+        //loadFromServer();
     }
 
     // TODO: synchronize
@@ -65,8 +65,8 @@ public class BoardManager {
         List<Board> saved = new ArrayList<>(allBoards.size());
 
         for (Board b : allBoards) {
-            if (b.saved)
-                saved.add(b);
+            //if (b.saved)
+            saved.add(b);
         }
 
         Collections.sort(saved, savedOrder);
@@ -74,8 +74,13 @@ public class BoardManager {
         return saved;
     }
 
+    public void saveBoard(Board b) {
+        allBoards.add(b);
+        storeBoards();
+    }
+
     public boolean getBoardExists(String board) {
-        for (Board e : getAllBoards()) {
+        for (Board e : getSavedBoards()) {
             if (e.value.equals(board)) {
                 return true;
             }
@@ -117,7 +122,7 @@ public class BoardManager {
         }
         updateByValueMap();
     }
-
+/*
     private void setBoardsFromServer(List<Board> serverList) {
         boolean has;
         for (Board serverBoard : serverList) {
@@ -165,16 +170,16 @@ public class BoardManager {
                 })
         );
     }
-
+*/
     private List<Board> getDefaultBoards() {
         List<Board> list = new ArrayList<>();
-        list.add(new Board("Technology", "g", true, true));
-        list.add(new Board("Video Games", "v", true, true));
-        list.add(new Board("Anime & Manga", "a", true, true));
-        list.add(new Board("Comics & Cartoons", "co", true, true));
-        list.add(new Board("International", "int", true, true));
-        list.add(new Board("Sports", "sp", true, true));
-        list.add(new Board("Television & Film", "tv", true, true));
+        list.add(new Board("Technology", "g", true));
+        list.add(new Board("Video Games", "v", true));
+        list.add(new Board("Anime & Manga", "a",true));
+        list.add(new Board("Comics & Cartoons", "co",true));
+        list.add(new Board("International", "int",true));
+        list.add(new Board("Sports", "sp", true));
+        list.add(new Board("Television & Film", "tv", true));
 
         Collections.shuffle(list);
 

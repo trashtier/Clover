@@ -152,7 +152,7 @@ public class Post {
         if (board == null)
             return false;
 
-        if (no < 0 || resto < 0 || date == null || time < 0)
+        if (no < 0 || resto < 0 /*|| date == null*/ || time < 0)
             return false;
 
         isOP = resto == 0;
