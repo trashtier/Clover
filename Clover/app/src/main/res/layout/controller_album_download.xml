@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="match_parent"
     android:background="?backcolor">
 
-    <org.floens.chan.ui.view.GridRecyclerView
+    <org.trashtier.chan.ui.view.GridRecyclerView
         android:id="@+id/recycler_view"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
