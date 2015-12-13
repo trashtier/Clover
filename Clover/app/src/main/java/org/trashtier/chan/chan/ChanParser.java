@@ -1,6 +1,7 @@
 /*
  * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
+ * Copyright (C) 2014  wingy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +31,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
 import org.trashtier.chan.Chan;
+import org.trashtier.chan.ChanApplication;
 import org.trashtier.chan.core.database.DatabaseManager;
 import org.trashtier.chan.core.model.Post;
 import org.trashtier.chan.core.model.PostLinkable;
@@ -59,6 +61,9 @@ import static org.trashtier.chan.utils.AndroidUtils.sp;
 public class ChanParser {
     private static final String TAG = "ChanParser";
     private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
+    private static final Pattern postLinkHrefPattern = Pattern.compile("/(\\w+)/res/(\\d+)\\.html#(\\d+)");
+    private static final Pattern boardLinkHrefPattern = Pattern.compile("/(\\w+)/index\\.html");
+
 
     private static ChanParser instance = new ChanParser();
     private final DatabaseManager databaseManager;
@@ -367,11 +372,56 @@ public class ChanParser {
 
     private CharSequence parseAnchor(Theme theme, Post post, Element anchor) {
         String href = anchor.attr("href");
-        Set<String> classes = anchor.classNames();
 
         PostLinkable.Type t = null;
         String key = null;
         Object value = null;
+
+        Matcher postMatcher = postLinkHrefPattern.matcher(href);
+        Matcher boardMatcher = boardLinkHrefPattern.matcher(href);
+
+        if (anchor.text().startsWith(">>") && postMatcher.find()) {
+            String board = postMatcher.group(1);
+            int threadId = Integer.parseInt(postMatcher.group(2));
+            int postId = Integer.parseInt(postMatcher.group(3));
+
+            if (threadId != post.resto || !board.equals(post.board)) {
+                // link to another thread
+                PostLinkable.ThreadLink link = new PostLinkable.ThreadLink(board, threadId, postId);
+                t = PostLinkable.Type.THREAD;
+                key = anchor.text();
+                value = link;
+            }
+            else {
+                // normal quote
+                t = PostLinkable.Type.QUOTE;
+                key = anchor.text();
+                value = postId;
+                post.repliesTo.add(postId);
+
+                if(postId == post.resto) {
+                    // link to op
+                    key += " (OP)";
+                }
+
+                if(ChanApplication.getDatabaseManager().isSavedReply(post.board, postId)) {
+                    // (you)
+                    key += " (You)";
+                }
+            }
+        }
+        else if (anchor.text().startsWith(">>") && boardMatcher.find()) {
+            // todo: implement
+        }
+        else {
+            // a link!
+            t = PostLinkable.Type.LINK;
+            key = anchor.text();
+            value = href;
+        }
+
+
+        /*
         if (classes.contains("quotelink")) {
             if (href.contains("/thread/")) {
                 // link to another thread
@@ -432,7 +482,7 @@ public class ChanParser {
             key = anchor.text();
             value = href;
         }
-
+        */
         if (t != null && key != null && value != null) {
             SpannableString link = new SpannableString(key);
             PostLinkable pl = new PostLinkable(theme, post, key, value, t);

@@ -157,8 +157,9 @@ public class Post {
 
         isOP = resto == 0;
 
-        if (isOP && (replies < 0 || images < 0))
+        /*if (isOP && (replies < 0 || images < 0))
             return false;
+        */ // the vichan api never returns these.
 
         if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0 && tim >= 0) {
             hasImage = true;
